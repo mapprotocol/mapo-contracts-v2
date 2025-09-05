@@ -17,8 +17,7 @@ enum TxType {
 }
 
 struct TxItem {
-    uint256 fromChain;
-    uint256 toChain;
+    uint256 chain;
     bytes32 orderId;
     address token;
     uint256 amount;
@@ -33,25 +32,27 @@ struct TxItem {
 struct TxInItem {
     TxType txInType;
     bytes32 orderId;
-    uint128 chain;
+    uint256 chainAndGasLimit;
     uint128 height;
-    uint64 toChain;
     bytes token;
     uint256 amount;
     bytes from;
     bytes vault;
     bytes to;
-    bytes data;
+    bytes payload;
 }
 
 struct TxOutItem {
     TxType txOutType;
     bytes32 orderId;
+    uint256 chainAndGasLimit;
     uint128 height;
-    uint128 chain;
     uint128 gasUsed;
-    uint128 sequence;
+    uint256 sequence;
+    uint256 amount;
     address sender;
+    bytes token;
+    bytes from;
     bytes to;
     bytes vault;
     bytes data;

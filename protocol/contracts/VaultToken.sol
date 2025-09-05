@@ -166,4 +166,13 @@ contract VaultToken is IVaultToken, AccessControlEnumerable, ERC20Burnable {
         // todo
         // emit UpdateVault();
     }
+
+    function increaseVaultBalance(uint256 chain, uint256 amount) external override onlyRole(MANAGER_ROLE) {
+        vaultBalance[chain] += amount.toInt256();
+    }
+
+    function reduceVaultBalance(uint256 chain, uint256 amount) external override onlyRole(MANAGER_ROLE) {
+            vaultBalance[chain] -= amount.toInt256();
+    }
+
 }

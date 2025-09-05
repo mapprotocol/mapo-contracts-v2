@@ -29,6 +29,10 @@ interface IVaultToken {
         uint256 _fee
     ) external;
 
+    function increaseVaultBalance(uint256 chain, uint256 amount) external;
+
+    function reduceVaultBalance(uint256 chain, uint256 amount) external;
+
     function getTokenAmount(uint256 _amount) external view returns (uint256);
 
     function getTokenAddress() external view returns (address);

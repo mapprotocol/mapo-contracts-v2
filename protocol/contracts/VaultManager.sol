@@ -41,8 +41,8 @@ contract VaultManager is BaseImplementation, IVaultManager {
     }
 
     // only one active vault and one retiring vault at a time
-    bytes32 activeVaultKey;
-    bytes32 retiringVaultKey;
+    bytes32 public activeVaultKey;
+    bytes32 public retiringVaultKey;
 
     mapping(bytes32 => Vault) vaultList;
 
@@ -76,6 +76,20 @@ contract VaultManager is BaseImplementation, IVaultManager {
     function rotate(bytes memory retiringVault, bytes memory activeVault) external override onlyRelay {
         activeVaultKey = keccak256(activeVault);
         retiringVaultKey = keccak256(retiringVault);
+        vaultList[activeVaultKey].pubkey = activeVault;
+    }
+
+    function addChain(uint256 chain) external override onlyRelay {
+        vaultList[activeVaultKey].chains.add(chain);
+    }
+
+    function removeChain(uint256 chain) external override onlyRelay {
+        if (periphery.getChainType(chain) != ChainType.CONTRACT) {
+            if(vaultList[activeVaultKey].chainAllowances[chain].tokenAllowances > 0) {
+                revert Errs.token_allowance_not_zero();
+            }
+        }
+        vaultList[activeVaultKey].chains.remove(chain);
     }
 
     function checkMigration() external override onlyRelay returns (bool completed, uint256 toMigrateChain) {
@@ -86,7 +100,7 @@ contract VaultManager is BaseImplementation, IVaultManager {
 
         Vault storage v = vaultList[retiringVaultKey];
         uint256[] memory chains = v.chains.values();
-        for (uint256 i = 0; i < chains.length(); i++) {
+        for (uint256 i = 0; i < chains.length; i++) {
             uint256 chain = chains[i];
             if (v.chainAllowances[chain].migrationPending) {
                 // migrating, continue to other chain migration
@@ -110,7 +124,7 @@ contract VaultManager is BaseImplementation, IVaultManager {
         onlyRelay
         returns (bool toMigrate, bytes memory fromVault, bytes memory toVault, uint256 migrationAmount)
     {
-        if (periphery.getChainType() == ChainType.CONTRACT) {
+        if (periphery.getChainType(_chain) == ChainType.CONTRACT) {
             // token allowances managed by a global allowance
             // switch to active vault after migration when choosing vault
             vaultList[retiringVaultKey].chainAllowances[_chain].migrationPending = true;
@@ -127,7 +141,7 @@ contract VaultManager is BaseImplementation, IVaultManager {
                 return (false, fromVault, toVault, 0);
             }
             // no need migration
-            vaultList[retiringVaultKey].remove(_chain);
+            vaultList[retiringVaultKey].chains.remove(_chain);
             delete vaultList[retiringVaultKey].chainAllowances[_chain];
 
             return (false, fromVault, toVault, 0);
@@ -148,31 +162,35 @@ contract VaultManager is BaseImplementation, IVaultManager {
 
     function chooseVault(uint256 chain, address token, uint256 amount, uint256 gas)
         external
+        view
         onlyRelay
-        returns (bytes32 vault)
-    {
-        if (periphery.getChainType() == ChainType.CONTRACT) {
+        returns (bytes memory vault)
+    {   
+        uint256 allowance;
+        if (periphery.getChainType(chain) == ChainType.CONTRACT) {
+            allowance = tokenAllowances[token][chain] - tokenPendingOutAllowances[token][chain];
+            if(allowance < amount) return bytes("");
             if (vaultList[activeVaultKey].chains.contains(chain)) {
-                return activeVaultKey;
+                return vaultList[activeVaultKey].pubkey;
             } else {
-                return retiringVaultKey;
+                return vaultList[retiringVaultKey].pubkey;
             }
         }
         // non-contract chain
         // choose active vault first, if not match, choose retiring vault
         ChainAllowance storage p = vaultList[activeVaultKey].chainAllowances[chain];
-        uint256 allowance = p.tokenAllowances - p.tokenPendingOutAllowances;
+        allowance = p.tokenAllowances - p.tokenPendingOutAllowances;
         if (allowance >= amount + gas) {
-            return activeVaultKey;
+            return vaultList[activeVaultKey].pubkey;
         }
 
         p = vaultList[retiringVaultKey].chainAllowances[chain];
         allowance = p.tokenAllowances - p.tokenPendingOutAllowances;
         if (allowance >= amount + gas) {
-            return retiringVaultKey;
+            return vaultList[retiringVaultKey].pubkey;
         }
 
-        return bytes32(0x00);
+        return bytes("");
     }
 
     function migrationOut(TxItem memory txItem, bytes memory toVault, uint256 estimatedGas, uint256 usedGas)
@@ -184,20 +202,21 @@ contract VaultManager is BaseImplementation, IVaultManager {
         bytes32 targetVaultKey = keccak256(toVault);
         if (vaultKey != retiringVaultKey || targetVaultKey != activeVaultKey) revert Errs.invalid_vault();
 
-        if (periphery.getChainType() == ChainType.CONTRACT) {
-            delete vaultList[vaultKey].chainAllowances[txItem.fromChain];
-            vaultList[vaultKey].chains.remove(txItem.fromChain);
+        if (periphery.getChainType(txItem.chain) == ChainType.CONTRACT) {
+            delete vaultList[vaultKey].chainAllowances[txItem.chain];
+            vaultList[vaultKey].chains.remove(txItem.chain);
         } else {
-            ChainAllowance storage p = vaultList[vaultKey].chainAllowances[txItem.fromChain];
+            ChainAllowance storage p = vaultList[vaultKey].chainAllowances[txItem.chain];
             p.migrationPending = false;
 
             p.tokenAllowances -= (txItem.amount + usedGas);
             p.tokenPendingOutAllowances -= (txItem.amount + estimatedGas);
 
-            vaultList[targetVaultKey].chains.add(txItem.fromChain);
-            vaultList[targetVaultKey].chainAllowances[txItem.fromChain].tokenAllowances += txItem.amount;
+            vaultList[targetVaultKey].chains.add(txItem.chain);
+            vaultList[targetVaultKey].chainAllowances[txItem.chain].tokenAllowances += txItem.amount;
 
             tokenTotalAllowance[txItem.token] -= usedGas;
+            tokenAllowances[txItem.token][txItem.chain] -= usedGas;
         }
     }
 
@@ -224,7 +243,7 @@ contract VaultManager is BaseImplementation, IVaultManager {
         tokenTotalAllowance[token] += amount;
         tokenAllowances[token][fromChain] += amount;
 
-        if (periphery.getChainType() == ChainType.CONTRACT) {
+        if (periphery.getChainType(fromChain) == ChainType.CONTRACT) {
             // todo: add chain to active vault ?
             return true;
         }
@@ -236,33 +255,71 @@ contract VaultManager is BaseImplementation, IVaultManager {
     }
 
     // tx out, remove liquidity or swap out
-    function transferOut(uint256 toChain, bytes memory vault, address token, uint256 amount, uint256 gasFee)
+    function transferOut(uint256 chain, bytes memory vault, address token, uint256 amount, uint256 relayGasUsed, uint256 relayGasEstimated)
         external
+        override
         onlyRelay
     {
+        bytes32 vaultKey = keccak256(vault);
+
+        if (vaultKey != retiringVaultKey || vaultKey != activeVaultKey) revert Errs.invalid_vault();
+
+        tokenTotalAllowance[token] -= amount;
+        tokenAllowances[token][chain] -= amount;
+        tokenPendingOutAllowances[token][chain] -= (amount + relayGasEstimated);
+
+        if (periphery.getChainType(chain) != ChainType.CONTRACT) {
+            tokenTotalAllowance[token] -= relayGasUsed;
+            tokenAllowances[token][chain] -= relayGasUsed;
+            
+            vaultList[vaultKey].chainAllowances[chain].tokenAllowances -= (amount + relayGasUsed);
+            vaultList[vaultKey].chainAllowances[chain].tokenPendingOutAllowances -= (amount + relayGasEstimated);
+        }
+    }
+
+
+    // bridge
+    function doTransfer(uint256 toChain, bytes memory vault, address token, uint256 amount, uint256 estimatedGas)
+        external
+        override
+        onlyRelay
+    {
+        // todo: calculate balance fee
+
         bytes32 vaultKey = keccak256(vault);
 
         if (vaultKey != activeVaultKey && vaultKey != retiringVaultKey) {
             return;
         }
 
-        if (periphery.getChainType() == ChainType.CONTRACT) {
+        if (periphery.getChainType(toChain) == ChainType.CONTRACT) {
             tokenPendingOutAllowances[token][toChain] += amount;
 
             return;
         }
 
-        tokenPendingOutAllowances[token][toChain] += (amount + gasFee);
+        tokenPendingOutAllowances[token][toChain] += (amount + estimatedGas);
 
         vaultList[vaultKey].chains.add(toChain);
-        vaultList[vaultKey].chainAllowances[toChain].tokenPendingOutAllowances += (amount + gasFee);
+        vaultList[vaultKey].chainAllowances[toChain].tokenPendingOutAllowances += (amount + estimatedGas);
     }
 
-    // bridge
-    function transfer(ChainType _t, uint256 chain, bytes32 vaultKey, address token, uint256 amount)
-        external
-        onlyRelay
-    {
-        // todo: calculate balance fee
+    function checkVault(bytes calldata vault) external view returns(bool) {
+        bytes32 vaultKey = keccak256(vault);
+        return (vaultKey == retiringVaultKey || vaultKey == activeVaultKey);
     }
+
+    function updateVault(uint256 fromChain, uint256 toChain, address token, uint256 amount) external override {
+        
+    }
+
+    function getBalanceFee(uint256 fromChain, uint256 toChain, address token, uint256 amount)
+        external
+        view
+        override
+        returns (uint256, bool)
+    {
+
+    }
+
 }

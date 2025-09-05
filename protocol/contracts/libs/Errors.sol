@@ -10,4 +10,9 @@ library Errs {
     error transfer_token_in_failed();
 
     error invalid_vault();
+    error invalid_signature();
+    error token_allowance_not_zero();
+    error migration_not_completed();
+    error not_bridge_able();
+    error zero_amount_out();
 }

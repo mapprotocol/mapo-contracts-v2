@@ -19,18 +19,18 @@ contract GasService is BaseImplementation, IGasService {
     }
 
     IHiveSwapV3Quoter public quoter;
-    IPeriphery public registry;
+    IPeriphery public periphery;
     mapping(uint256 => NetworkFee) public chainNetworkFee;
 
-    event SetAddressRegistry(address _registry);
+    event SetPeriphery(address _periphery);
     event PostNetworkFee(
         uint256 chain, uint256 height, uint256 transactionSize, uint256 transactionSizeWithCall, uint256 transactionRate
     );
 
-    function setAddressRegistry(address _registry) external restricted {
-        require(_registry != address(0));
-        registry = IPeriphery(_registry);
-        emit SetAddressRegistry(_registry);
+    function setPeriphery(address _periphery) external restricted {
+        require(_periphery != address(0));
+        periphery = IPeriphery(_periphery);
+        emit SetPeriphery(_periphery);
     }
 
     function postNetworkFee(
@@ -104,10 +104,10 @@ contract GasService is BaseImplementation, IGasService {
     }
 
     function _getTokenRegistry() internal view returns (IRegistry tokenRegistry) {
-        tokenRegistry = IRegistry(registry.getAddress(3));
+        tokenRegistry = IRegistry(periphery.getAddress(3));
     }
 
     function _checkAccess(uint256 t) internal view {
-        if (msg.sender != registry.getAddress(t)) revert Errs.no_access();
+        if (msg.sender != periphery.getAddress(t)) revert Errs.no_access();
     }
 }
