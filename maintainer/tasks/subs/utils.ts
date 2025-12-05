@@ -39,7 +39,7 @@ export async function deployProxy(hre: HardhatRuntimeEnvironment, impl:string, a
     let c = await (await ContractProxy.deploy(impl, init_data)).waitForDeployment();
     let addr = await c.getAddress()
     console.log("proxy deploy to:", addr);
-    await verify(hre, addr, [impl, init_data], "node_modules/@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy");
+  //  await verify(hre, addr, [impl, init_data], "contracts/ERC1967Proxy.sol:ERC1967Proxy");
     return c.getAddress();
 }
 

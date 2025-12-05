@@ -10,7 +10,7 @@ import {TSSManager} from "../../contracts/TSSManager.sol";
 contract DeployAndSetUp is BaseScript {
      
     function run() public virtual broadcast {
-          deploy();
+          // deploy();
           set();
     } 
 
