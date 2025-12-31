@@ -1,18 +1,18 @@
 
     {
-        "Makalu": {
-            "chainId": 212, 
-            "lastScanBlock": 19177800,
+        "Mapo": {
+            "chainId": 22776, 
+            "lastScanBlock": 21344539,
             "updateGasFeeGap": 0,
             "confirmCount": 6,
             "chainType": "contract",
-            "gasToken": "0x2eD27dF9B4c903aB53666CcA59AFB431F7D15e91", 
-            "baseFeeToken": "0x71239b11Ad68e27609e42cA6723645172FDB02c7",
+            "gasToken": "0x13cb04d4a5dfb6398fc5ab005a6c84337256ee23", 
+            "baseFeeToken": "0x33daba9618a75a7aff103e53afe530fbacf4a3dd",
             "transferFailedReceiver": "0x0cDAe5da23b64bFeCD421d6487FFEABF6558828d",
             "tokens": [
                 {
                     "name": "BTC",
-                    "addr": "0xE85C9Bc2Aef9374EAe55E844f1B6d8cB2cFA5A89",
+                    "addr": "0xb877E3562a660C7861117c2f1361A26ABaF19bEB",
                     "decimals": 18,
                     "bridgeAble": true,
                     "mintAble": true,
@@ -20,105 +20,113 @@
                 },
                 {
                     "name": "ETH",
-                    "addr": "0x71239b11Ad68e27609e42cA6723645172FDB02c7",
+                    "addr": "0x05ab928d446d8ce6761e368c8e7be03c3168a9ec",
+                    "decimals": 18,
+                    "bridgeAble": false,
+                    "mintAble": true,
+                    "burnFrom": true
+                },
+                {
+                    "name": "BNB",
+                    "addr": "0xc478A25240d9C072ebEC5109b417E0A78A41667c",
+                    "decimals": 18,
+                    "bridgeAble": false,
+                    "mintAble": true,
+                    "burnFrom": true
+                },
+                {
+                    "name": "USDT",
+                    "addr": "0x33daba9618a75a7aff103e53afe530fbacf4a3dd",
                     "decimals": 18,
                     "bridgeAble": true,
                     "mintAble": true,
-                    "burnFrom": false
-                },
-                {
-                    "name": "BNB",
-                    "addr": "0x4f2E7AE1B0b36da92F44903b3b5631f97F2CD52d",
-                    "decimals": 18,
-                    "bridgeAble": true,
-                    "mintAble": true,
-                    "burnFrom": false
+                    "burnFrom": true
                 }
             ]
         },
 
-        "eth_test": {
-            "chainId": 11155111, 
-            "lastScanBlock": 9667140,
-            "updateGasFeeGap": 0,
-            "confirmCount": 6,
-            "chainType": "contract",
-            "gasToken": "0x71239b11Ad68e27609e42cA6723645172FDB02c7", 
-            "baseFeeToken": "0x71239b11Ad68e27609e42cA6723645172FDB02c7",
-            "transferFailedReceiver": "0x0cDAe5da23b64bFeCD421d6487FFEABF6558828d",
-            "tokens": [
-                {
-                    "name": "BTC",
-                    "addr": "0x1984dCbb37dB63872723bD123c1de3Db3976625F",
-                    "decimals": 18,
-                    "bridgeAble": true,
-                    "mintAble": false,
-                    "burnFrom": false
-                },
-                {
-                    "name": "ETH",
-                    "addr": "0x7b79995e5f793A07Bc00c21412e50Ecae098E7f9",
-                    "decimals": 18,
-                    "bridgeAble": true,
-                    "mintAble": false,
-                    "burnFrom": false
-                },
-                {
-                    "name": "BNB",
-                    "addr": "0xa6cfEe93bbC949B568b020Ee4942F342069846e2",
-                    "decimals": 18,
-                    "bridgeAble": true,
-                    "mintAble": false,
-                    "burnFrom": false
-                }
-            ]
-        },
-
-        "bsc_test": {
-            "chainId": 97, 
-            "lastScanBlock": 73811503,
-            "updateGasFeeGap": 0,
-            "confirmCount": 6,
-            "chainType": "contract",
-            "gasToken": "0x4f2E7AE1B0b36da92F44903b3b5631f97F2CD52d", 
-            "baseFeeToken": "0x71239b11Ad68e27609e42cA6723645172FDB02c7",
-            "transferFailedReceiver": "0x0cDAe5da23b64bFeCD421d6487FFEABF6558828d",
-            "tokens": [
-                {
-                    "name": "BTC",
-                    "addr": "0x2BAd3A39a4a793a8abc466850e103B524ff68EEc",
-                    "decimals": 18,
-                    "bridgeAble": true,
-                    "mintAble": false,
-                    "burnFrom": false
-                },
-                {
-                    "name": "ETH",
-                    "addr": "0x13a2EE0d56Cd8A5299268830eacfb257522651eF",
-                    "decimals": 18,
-                    "bridgeAble": true,
-                    "mintAble": false,
-                    "burnFrom": false
-                },
-                {
-                    "name": "BNB",
-                    "addr": "0xae13d989dac2f0debff460ac112a837c89baa7cd",
-                    "decimals": 18,
-                    "bridgeAble": true,
-                    "mintAble": false,
-                    "burnFrom": false
-                }
-            ]
-        },
-
-        "btc_test": {
-            "chainId": 1360095883558914, 
-            "lastScanBlock": 279084,
+        "Bsc": {
+            "chainId": 56, 
+            "lastScanBlock": 70547507,
             "updateGasFeeGap": 3,
+            "confirmCount": 6,
+            "chainType": "contract",
+            "gasToken": "0xc478A25240d9C072ebEC5109b417E0A78A41667c", 
+            "baseFeeToken": "0x33daba9618a75a7aff103e53afe530fbacf4a3dd",
+            "transferFailedReceiver": "0x0cDAe5da23b64bFeCD421d6487FFEABF6558828d",
+            "tokens": [
+                {
+                    "name": "BTC",
+                    "addr": "0x7130d2A12B9BCbFAe4f2634d864A1Ee1Ce3Ead9c",
+                    "decimals": 18,
+                    "bridgeAble": true,
+                    "mintAble": false,
+                    "burnFrom": false
+                },
+                {
+                    "name": "ETH",
+                    "addr": "0x2170Ed0880ac9A755fd29B2688956BD959F933F8",
+                    "decimals": 18,
+                    "bridgeAble": false,
+                    "mintAble": false,
+                    "burnFrom": false
+                },
+                {
+                    "name": "BNB",
+                    "addr": "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c",
+                    "decimals": 18,
+                    "bridgeAble": false,
+                    "mintAble": false,
+                    "burnFrom": false
+                },
+                {
+                    "name": "USDT",
+                    "addr": "0x55d398326f99059fF775485246999027B3197955",
+                    "decimals": 18,
+                    "bridgeAble": true,
+                    "mintAble": false,
+                    "burnFrom": false
+                }
+            ]
+        },
+
+
+        "Base": {
+            "chainId": 8453, 
+            "lastScanBlock": 39885832,
+            "updateGasFeeGap": 3,
+            "confirmCount": 6,
+            "chainType": "contract",
+            "gasToken": "0x05ab928d446d8ce6761e368c8e7be03c3168a9ec", 
+            "baseFeeToken": "0x33daba9618a75a7aff103e53afe530fbacf4a3dd",
+            "transferFailedReceiver": "0x0cDAe5da23b64bFeCD421d6487FFEABF6558828d",
+            "tokens": [
+                {
+                    "name": "ETH",
+                    "addr": "0x4200000000000000000000000000000000000006",
+                    "decimals": 18,
+                    "bridgeAble": false,
+                    "mintAble": false,
+                    "burnFrom": false
+                },
+                {
+                    "name": "USDT",
+                    "addr": "0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2",
+                    "decimals": 6,
+                    "bridgeAble": true,
+                    "mintAble": false,
+                    "burnFrom": false
+                }
+            ]
+        },
+        "Btc": {
+            "chainId": 1360095883558913, 
+            "lastScanBlock": 926495,
+            "updateGasFeeGap": 0,
             "confirmCount": 2,
             "chainType": "no-contract",
-            "gasToken": "0xE85C9Bc2Aef9374EAe55E844f1B6d8cB2cFA5A89", 
-            "baseFeeToken": "0xE85C9Bc2Aef9374EAe55E844f1B6d8cB2cFA5A89",
+            "gasToken": "0xb877E3562a660C7861117c2f1361A26ABaF19bEB", 
+            "baseFeeToken": "0xb877E3562a660C7861117c2f1361A26ABaF19bEB",
             "transferFailedReceiver": "",
             "tokens": [
                 {

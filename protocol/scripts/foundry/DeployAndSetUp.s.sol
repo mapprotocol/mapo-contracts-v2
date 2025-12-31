@@ -14,7 +14,7 @@ import {IRegistry, ContractType} from "../../contracts/interfaces/IRegistry.sol"
 contract DeployAndSetUp is BaseScript {
     function run() public virtual broadcast {
           deploy();
-          set();
+          // set();
     }
 
     function deploy() internal {

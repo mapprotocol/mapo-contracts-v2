@@ -161,7 +161,7 @@ abstract contract BaseGateway is IGateway, BaseImplementation, ReentrancyGuardUp
         bytes memory payload,
         uint256 deadline
     ) external payable override whenNotPaused nonReentrant ensure(deadline) returns (bytes32 orderId) {
-        require(amount != 0 && toChain != selfChainId);
+        require(amount != 0 && toChain != selfChainId && to.length != 0);
         if (refundAddr == ZERO_ADDRESS) revert invalid_refund_address();
 
         // address user = msg.sender;

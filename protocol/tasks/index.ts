@@ -37,9 +37,9 @@ task("upgrade", "upgrade contract")
       await verify(hre, await impl.getAddress(), [], code);
   })
 
-// steps
-// 1. deploy contract
-// 2. set up contract   
+// steps  first Configuration protocol/configs file
+// 1. deploy contract (a.deploy maintainer contract b.deploy protocol contract)  forge script
+// 2. set up contract (a.set maintainer contract b.set protocol contract) forge script
 // 3. gateway and relay -> gateway:updateTokens
 // 4. gateway and relay -> gateway:gateway:setTransferFailedReceiver
 // 5. vaultManager -> vaultManager:updateVaultFeeRate

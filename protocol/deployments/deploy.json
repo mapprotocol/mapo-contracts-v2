@@ -1,5 +1,5 @@
 {
-  "Makalu": {
+  "Mapo_test": {
     "TSSManager": "0xeca45BE061CAa8F2Db2385e9Caa348acd55c85a2",
     "Authority": "0xA6a4F4f0da29feA73F39D641CDF57B06103B4678",
     "Relay": "0x42D64eD9381bF456697b0C360e8acE139F176a80",
@@ -12,22 +12,23 @@
     "ViewController": "0xb79bAe710F69f5D9B53098aB16B57A26a762c7BF",
     "wToken": "0x2eD27dF9B4c903aB53666CcA59AFB431F7D15e91"
   },
-  "bsc_test": {
+  "Bsc_test": {
     "Authority": "0x018a0b28125923823fa11638957e3124179b3b11",
     "Gateway": "0x42D64eD9381bF456697b0C360e8acE139F176a80",
     "wToken": "0xae13d989dac2f0debff460ac112a837c89baa7cd"
   },
-  "eth_test": {
+  "Eth_test": {
     "Authority": "0x66C6e4974A9c52C378897EA21b65FDc9A935415A",
     "Gateway": "0x42D64eD9381bF456697b0C360e8acE139F176a80",
     "wToken": "0x7b79995e5f793A07Bc00c21412e50Ecae098E7f9"
   },
-  "tron_test": {
+  "Tron_test": {
     "Authority": "TKjtxw24jmE33j2GMuhZiDhGfDHSL8juCV",
     "Gateway": "TFgVqNsHTtL8xcuvfoT6FrtojpGNnEoowu",
     "wToken": "TYsbWxNnyTgsZaTFaue9hqpxkU3Fkco94a"
   },
-  "Mapo": {
+
+  "Mapo_main": {
     "TSSManager": "0x062B3Bd0B1A0c9d3cE35dC59D8F5E929314a8706",
     "Authority": "0xC28459DfF1288992EB81e1C1d1b51a7B4D8b5a13",
     "Relay": "0x42D64eD9381bF456697b0C360e8acE139F176a80",
@@ -40,19 +41,55 @@
     "ProtocolFee": "0x52373c5350fd45b3A096Ab7A47E2cc9008f04507",
     "wToken": "0x13cb04d4a5dfb6398fc5ab005a6c84337256ee23"
   },
-  "Eth": {
+
+  "Eth_main": {
     "Authority": " ",
     "Gateway": " ",
     "wToken": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
   },
-  "Bsc": {
+
+  "Bsc_main": {
     "Authority": "0x718110E1c08Ef66b1B199B4797C754A9a9ff1084",
     "Gateway": "0x42D64eD9381bF456697b0C360e8acE139F176a80",
     "wToken": "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c"
   },
-  "Base": {
+
+  "Base_main": {
     "Authority": "0x52cbbB1A8BfEcdD4Afa04fc74f0A6Dafe58B4c1B",
     "Gateway": "0x42D64eD9381bF456697b0C360e8acE139F176a80",
     "wToken": "0x4200000000000000000000000000000000000006"
+  },
+
+  "Mapo_prod": {
+    "TSSManager": "",
+    "Authority": "",
+    "Relay": "",
+    "VaultManager": "",
+    "GasService": "",
+    "Registry": "",
+    "SwapManager": "",
+    "AffiliateManager": "0x4De2ADb9cB88c10Bf200F76c18035cbB8906b6bC",
+    "ViewController": "",
+    "ProtocolFee": "",
+    "wToken": "0x13cb04d4a5dfb6398fc5ab005a6c84337256ee23"
+  },
+
+  "Eth_prod": {
+    "Authority": " ",
+    "Gateway": " ",
+    "wToken": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
+  },
+
+  "Bsc_prod": {
+    "Authority": "",
+    "Gateway": "",
+    "wToken": "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c"
+  },
+
+  "Base_prod": {
+    "Authority": "",
+    "Gateway": "",
+    "wToken": "0x4200000000000000000000000000000000000006"
   }
+
 }

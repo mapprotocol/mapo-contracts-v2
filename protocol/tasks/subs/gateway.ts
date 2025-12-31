@@ -37,12 +37,12 @@ task("gateway:setWtoken", "set wtoken address")
         const { network, ethers } = hre;
         let wtoken = await getDeploymentByKey(network.name, "wToken");
         let addr;
-        if(network.name === "Mapo" || network.name === "Makalu") {
+        if(isRelayChain(network.name)) {
             addr = await getDeploymentByKey(network.name, "Relay");
         } else {
             addr = await getDeploymentByKey(network.name, "Gateway");
         }
-        if(network.name === "Tron" || network.name === "tron_test") {
+        if(isTronNetwork(network.name)) {
             let c = await getTronContract("Gateway", hre.artifacts, network.name, addr);
             console.log(`pre wtoken address is: `, await tronFromHex(await c.wToken().call(), network.name));
             await c.setWtoken(await tronToHex(wtoken, network.name)).send();
@@ -66,7 +66,7 @@ task("gateway:setTssAddress", "set tss pubkey")
         const [deployer] = await ethers.getSigners();
 
         let addr = await getDeploymentByKey(network.name, "Gateway");
-        if(network.name === "Tron" || network.name === "tron_test") {
+        if(isTronNetwork(network.name)) {
             let c = await getTronContract("Gateway", hre.artifacts, network.name, addr);
             console.log(`pre pubkey is: `, await c.activeTss().call())
             await c.setTssAddress(taskArgs.pubkey).send();
@@ -87,7 +87,7 @@ task("gateway:setTransferFailedReceiver", "set Transfer Failed Receiver")
         const { network, ethers } = hre;
 
         let addr;
-        if(network.name === "Mapo" || network.name === "Makalu") {
+        if(isRelayChain(network.name)) {
             addr = await getDeploymentByKey(network.name, "Relay");
         } else {
             addr = await getDeploymentByKey(network.name, "Gateway");
@@ -95,7 +95,7 @@ task("gateway:setTransferFailedReceiver", "set Transfer Failed Receiver")
         let transferFailedReceiver = (await getChainTokenByNetwork(network.name)).transferFailedReceiver
         if(!transferFailedReceiver || transferFailedReceiver.length == 0) return;
 
-        if(network.name === "Tron" || network.name === "tron_test") {
+        if(isTronNetwork(network.name)) {
             let c = await getTronContract("Gateway", hre.artifacts, network.name, addr);
             console.log(`pre transferFailedReceiver is: `, await c.transferFailedReceiver().call())
             await c.setTransferFailedReceiver(await tronToHex(transferFailedReceiver, network.name)).send();
@@ -117,7 +117,7 @@ task("gateway:updateTokens", "update Tokens")
         const { network, ethers } = hre;
 
         let addr;
-        if(network.name === "Mapo" || network.name === "Makalu") {
+        if(isRelayChain(network.name)) {
             addr = await getDeploymentByKey(network.name, "Relay");
         } else {
             addr = await getDeploymentByKey(network.name, "Gateway");
@@ -126,7 +126,7 @@ task("gateway:updateTokens", "update Tokens")
         if(!tokens || tokens.length == 0) return;
 
 
-        if(network.name === "Tron" || network.name === "tron_test") {
+        if(isTronNetwork(network.name)) {
             let c = await getTronContract("Gateway", hre.artifacts, network.name, addr);
            for (let index = 0; index < tokens.length; index++) {
                 const element = tokens[index];
@@ -163,3 +163,10 @@ task("gateway:updateTokens", "update Tokens")
 });
 
 
+function isTronNetwork(network:string) {
+    return (network === "Tron" || network === "tron_test")
+}
+
+function isRelayChain(network:string) {
+    return (network === "Mapo" || network === "Mapo_test")
+}

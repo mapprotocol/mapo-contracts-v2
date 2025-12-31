@@ -417,6 +417,7 @@ contract Registry is BaseImplementation, IRegistry {
         address relayGasToken = chainInfos[chain].gasToken;
         // get relay chain amount
         uint256 relayNetworkFee = _getTargetAmount(relayGasToken, chain, selfChainId, networkFee);
+        if(relayNetworkFee == 0) revert Errs.relay_token_not_registered();
 
         if (relayGasToken != token) {
             relayNetworkFee = _getAmountOut(relayGasToken, token, relayNetworkFee);
@@ -426,7 +427,9 @@ contract Registry is BaseImplementation, IRegistry {
     }
 
     function _truncation(uint256 amount) internal pure returns(uint256) {
-        return _adjustDecimals(_adjustDecimals(amount, 6, 18), 18, 6);
+        uint256 ad = _adjustDecimals(amount, 6, 18);
+        ad = (ad == 0) ? 1 : ad;  
+        return _adjustDecimals(ad, 18, 6);
     }
 
     function _adjustDecimals(uint256 amount, uint256 decimalsMul, uint256 decimalsDiv) internal pure returns(uint256) {

@@ -1,0 +1,40 @@
+{
+    "totalRate": 200,
+    "tokens":[
+        {
+            "addr": "0xb877E3562a660C7861117c2f1361A26ABaF19bEB", 
+            "add": true
+        },
+        {
+            "addr": "0x33daba9618a75a7aff103e53afe530fbacf4a3dd",
+            "add": true
+        }
+    ],
+
+    "feeShares": [
+        {
+            "feeType": 0,
+            "share": 250,
+            "receiver": ""
+        },
+
+        {
+            "feeType": 1,
+            "share": 250,
+            "receiver": ""
+        },
+
+        {
+            "feeType": 2,
+            "share": 250,
+            "receiver": ""
+        },
+
+        {
+            "feeType": 3,
+            "share": 250,
+            "receiver": ""
+        }
+    ]
+
+}

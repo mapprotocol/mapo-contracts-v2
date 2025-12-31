@@ -299,12 +299,21 @@ contract Relay is BaseGateway, IRelay {
         // update source vault and relay chain vault balance
         vaultManager.updateFromVault(txItem, toChain);
 
+        bytes memory affiliateData;
+        bytes memory relayData;
+        bytes memory targetData;
+        try this.validateTxInParam(toChain, bridgeItem) returns (bytes memory _affiliateData, bytes memory _relayData, bytes memory _targetData) {
+            affiliateData = _affiliateData;
+            relayData = _relayData;
+            targetData = _targetData;
+        } catch  {
+            return _refund(bridgeItem.from, txInItem.refundAddr, bridgeItem.vault, txItem, false);
+        }
+
         if (bridgeItem.txType == TxType.DEPOSIT) {
             address to = Utils.fromBytes(bridgeItem.to);
             _depositIn(txItem, bridgeItem.from, to);
         } else if (bridgeItem.txType == TxType.TRANSFER) {
-            (bytes memory affiliateData, bytes memory relayData, bytes memory targetData) =
-                abi.decode(bridgeItem.payload, (bytes, bytes, bytes));
 
             // collect affiliate and bridge fee
             txItem.amount = _collectAffiliateAndProtocolFee(txItem, affiliateData);
@@ -337,10 +346,20 @@ contract Relay is BaseGateway, IRelay {
                 // txItem.chain = fromChain;
                 // txItem.chainType = periphery.getChainType(fromChain);
 
-                _refund(txInItem.bridgeItem.from, txInItem.refundAddr, txInItem.bridgeItem.vault, txItem, false);
+                _refund(bridgeItem.from, txInItem.refundAddr, bridgeItem.vault, txItem, false);
 
                 return;
             }
+        }
+    }
+
+    function validateTxInParam(uint256 toChain, BridgeItem calldata bridgeItem) external view returns(bytes memory affiliateData, bytes memory relayData, bytes memory targetData) {
+        if(bridgeItem.txType == TxType.DEPOSIT) toChain = selfChainId;
+        ChainType chainType = registry.getChainType(toChain);
+        _checkToAddress(bridgeItem.to, bridgeItem.txType, chainType);
+        if(bridgeItem.payload.length > 0) {
+            (affiliateData, relayData, targetData) =
+                abi.decode(bridgeItem.payload, (bytes, bytes, bytes));
         }
     }
 
@@ -480,6 +499,14 @@ contract Relay is BaseGateway, IRelay {
         _executeInternal(Utils.toBytes(msg.sender), to, txItem, toChain, relayPayload, targetPayload);
     }
 
+    function _checkToAddress(bytes memory to, TxType txType, ChainType) internal pure {
+        require(to.length > 0);
+        if(txType == TxType.DEPOSIT) {
+            require(to.length == 20);
+            require(Utils.fromBytes(to) != ZERO_ADDRESS);
+        }
+    }
+
     function _collectAffiliateAndProtocolFee(TxItem memory txItem, bytes memory affiliateData)
     internal
     returns (uint256)
@@ -496,7 +523,7 @@ contract Relay is BaseGateway, IRelay {
         }
 
         (address receiver, uint256 protocolFee) = registry.getProtocolFee(txItem.token, txItem.amount);
-        _sendToken(txItem.token, protocolFee, receiver, true);
+        if(protocolFee > 0) _sendToken(txItem.token, protocolFee, receiver, true);
 
         uint256 amount = txItem.amount - affiliateFee - protocolFee;
 

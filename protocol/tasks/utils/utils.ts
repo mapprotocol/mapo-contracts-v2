@@ -4,6 +4,19 @@ import "@nomicfoundation/hardhat-ethers";
 import { HardhatRuntimeEnvironment } from "hardhat/types/runtime";
 
 
+
+
+export function getNetworkName(network:string) {
+    if(network.indexOf("test") > 0) return network;
+    let suffix = process.env.NETWORK_SUFFIX;
+    if(suffix === "main") {
+        return network + '_' + "main";
+    } else {
+        return network + '_' + "prod";
+    }
+}
+
+
 type Deployment = {
     [network: string]: {
         [key: string]: any;
@@ -11,6 +24,7 @@ type Deployment = {
 };
 
 export async function getDeploymentByKey(network:string, key:string) {
+    network = getNetworkName(network)
     let deployment = await readDeploymentFromFile(network);
     let deployAddress = deployment[network][key];
     if (!deployAddress) throw `no ${key} deployment in ${network}`;
@@ -40,6 +54,7 @@ async function readDeploymentFromFile(network: string): Promise<Deployment> {
 
 
 export async function saveDeployment(network:string, key:string, addr:string) {
+  network = getNetworkName(network)
   let deployment = await readDeploymentFromFile(network);
 
   deployment[network][key] = addr;
@@ -71,6 +86,8 @@ type ChainToken = {
     [network: string]: {
         chainId: number,
         lastScanBlock: number,
+        updateGasFeeGap: number,
+        confirmCount: number,
         chainType: string,
         gasToken: string,
         baseFeeToken:string,
@@ -80,12 +97,7 @@ type ChainToken = {
 }
 
 export async function getAllChainTokens(network:string) {
-   let filePath; 
-   if(isMainnet(network)) {
-        filePath = "../../configs/mainnet/"
-   } else {
-        filePath = "../../configs/testnet/"
-   }
+   let filePath = getFilePath(network); 
    let p = path.join(__dirname, filePath + "chainTokens.json");
    if(!fs.existsSync(p)) throw (`file ${p} not exist`);
    let chainTokens: ChainToken;
@@ -96,12 +108,7 @@ export async function getAllChainTokens(network:string) {
 
 export async function getChainTokenByNetwork(network:string) {
 
-   let filePath; 
-   if(isMainnet(network)) {
-        filePath = "../../configs/mainnet/"
-   } else {
-        filePath = "../../configs/testnet/"
-   }
+   let filePath = getFilePath(network); 
    let p = path.join(__dirname, filePath + "chainTokens.json");
    if(!fs.existsSync(p)) throw (`file ${p} not exist`);
    let chainTokens: ChainToken;
@@ -147,12 +154,7 @@ type BalanceFeeRate = {
 
 export async function getVaultFeeRate(network:string) {
 
-   let filePath; 
-   if(isMainnet(network)) {
-        filePath = "../../configs/mainnet/"
-   } else {
-        filePath = "../../configs/testnet/"
-   }
+   let filePath = getFilePath(network);    
    let p = path.join(__dirname, filePath + "tokenRegister.json");
    if(!fs.existsSync(p)) throw (`file ${p} not exist`);
    let tokenRegister: TokenRegister;
@@ -163,12 +165,7 @@ export async function getVaultFeeRate(network:string) {
 
 export async function getBalanceFeeRate(network:string) {
 
-   let filePath; 
-   if(isMainnet(network)) {
-        filePath = "../../configs/mainnet/"
-   } else {
-        filePath = "../../configs/testnet/"
-   }
+   let filePath = getFilePath(network); 
    let p = path.join(__dirname, filePath + "tokenRegister.json");
    if(!fs.existsSync(p)) throw (`file ${p} not exist`);
    let tokenRegister: TokenRegister;
@@ -179,12 +176,8 @@ export async function getBalanceFeeRate(network:string) {
 
 export async function getTokenRegsterByTokenName(network:string, tokenName:string) {
 
-   let filePath; 
-   if(isMainnet(network)) {
-        filePath = "../../configs/mainnet/"
-   } else {
-        filePath = "../../configs/testnet/"
-   }
+   let filePath = getFilePath(network);
+
    let p = path.join(__dirname, filePath + "tokenRegister.json");
    if(!fs.existsSync(p)) throw (`file ${p} not exist`);
    let tokenRegister: TokenRegister;
@@ -205,12 +198,7 @@ export async function getTokenRegsterByTokenName(network:string, tokenName:strin
 
 export async function getAllTokenRegster(network:string) {
 
-   let filePath; 
-   if(isMainnet(network)) {
-        filePath = "../../configs/mainnet/"
-   } else {
-        filePath = "../../configs/testnet/"
-   }
+   let filePath = getFilePath(network); 
    let p = path.join(__dirname, filePath + "tokenRegister.json");
    if(!fs.existsSync(p)) throw (`file ${p} not exist`);
    let tokenRegister: TokenRegister;
@@ -232,12 +220,7 @@ type ProtocolFee = {
 }
 
 export async function getProtocolFeeConfig(network:string) {
-   let filePath; 
-   if(isMainnet(network)) {
-        filePath = "../../configs/mainnet/"
-   } else {
-        filePath = "../../configs/testnet/"
-   }
+   let filePath = getFilePath(network); 
    let p = path.join(__dirname, filePath + "protocolFee.json");
    if(!fs.existsSync(p)) throw (`file ${p} not exist`);
    let protocolFee: ProtocolFee;
@@ -246,9 +229,30 @@ export async function getProtocolFeeConfig(network:string) {
    return protocolFee;
 }
 
+function getFilePath(network:string) {
+   let filePath;  
+   let e = getNetworkEnv(network);
+   if(e === 'test') {
+        filePath = "../../configs/testnet/"
+   } else if(e === 'main'){
+        filePath = "../../configs/mainnet/"
+   } else {
+        filePath = "../../configs/prod/"
+   }
+   return filePath;
+}
 
-function isMainnet(network:string)  {
-    return !(network === "Makalu" || network.indexOf("test") >= 0); 
+function getNetworkEnv(network:string)  {
+    if(network.indexOf("test") >= 0) {
+        return "test"
+    } else {
+        let suffix = process.env.NETWORK_SUFFIX;
+        if(suffix === "main") {
+            return "main"
+        }  else {
+            return "prod"
+        }
+    }
 }
 
 

@@ -1,0 +1,82 @@
+{
+
+    "vaultFeeRate": {
+        "ammVault": 200,
+        "fromVault": 500,
+        "toVault": 800,
+        "reserved": 0
+    },
+
+   "balanceFeeRate":  {
+        "balanceThreshold": 2500,
+        "fixedFromBalance": 300,    
+        "fixedToBalance": 600,    
+        "minBalance": 100,        
+        "maxBalance": 2000,      
+        "reserved": 0          
+    },
+
+    "tokens": [
+        {
+            "id": 1,
+            "name": "BTC",
+            "addr": "0xb877E3562a660C7861117c2f1361A26ABaF19bEB",
+            "vaultToken": "0x77852E4c5C56b8C8335259aEC6f85e6DE6f028f2",
+            "chainWeights": [
+                {
+                    "chainId": 56,
+                    "weight": 100
+                },
+                {
+                    "chainId": 22776,
+                    "weight": 100
+                },
+                {
+                    "chainId": 1360095883558913,
+                    "weight": 100
+                }
+            ]
+        },
+        {
+            "id": 2,
+            "name": "USDT",
+            "addr": "0x33daba9618a75a7aff103e53afe530fbacf4a3dd",
+            "vaultToken": "0xF3AA3cE44624c18759C2BCA07bB983f32C9b11E0",
+            "chainWeights": [
+                {
+                    "chainId": 56,
+                    "weight": 100
+                },
+                {
+                    "chainId": 22776,
+                    "weight": 100
+                },
+                {
+                    "chainId": 8453,
+                    "weight": 100
+                }
+            ]
+        },
+
+        {
+            "id": 3,
+            "name": "ETH",
+            "addr": "0x05ab928d446d8ce6761e368c8e7be03c3168a9ec",
+            "vaultToken": "",
+            "chainWeights": [
+
+            ]
+        },
+
+        {
+            "id": 4,
+            "name": "BNB",
+            "addr": "0xc478A25240d9C072ebEC5109b417E0A78A41667c",
+            "vaultToken": "",
+            "chainWeights": [
+
+            ]
+        }
+
+    ]
+}

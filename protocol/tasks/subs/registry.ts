@@ -237,7 +237,7 @@ async function registerChain(network: string, registry: Registry, chainToken: {
 
 async function getRouter(network:string) {
         let router;
-        if(network === "Makalu" || network === "Mapo") {
+        if(network === "Mapo_test" || network === "Mapo") {
             router = await getDeploymentByKey(network, "Relay");
         } else {
             try {

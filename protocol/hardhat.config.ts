@@ -29,10 +29,28 @@ const config: HardhatUserConfig = {
       url: "http://127.0.0.1:8545",
     },
 
-    Makalu: {
+    Mapo_test: {
       chainId: 212,
       url: "https://testnet-rpc.maplabs.io",
       accounts: process.env.TESTNET_PRIVATE_KEY !== undefined ? [process.env.TESTNET_PRIVATE_KEY] : [],
+    },
+
+    Tron_test: {
+      url: `https://nile.trongrid.io/jsonrpc`,
+      chainId: 3448148188,
+      accounts: process.env.TESTNET_PRIVATE_KEY !== undefined ? [process.env.TESTNET_PRIVATE_KEY] : [],
+    },
+
+    Eth_test: {
+      url: `https://eth-sepolia.api.onfinality.io/public`,
+      chainId: 11155111,
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+    },
+
+    Bsc_test: {
+      url: `https://api.zan.top/bsc-testnet`,
+      chainId: 97,
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
 
     Mapo: {
@@ -49,8 +67,15 @@ const config: HardhatUserConfig = {
     },
 
     Bsc: {
-      url: `https://binance-smart-chain-public.nodies.app`,
+      url: `https://bsc-rpc.publicnode.com`,
       chainId: 56,
+      accounts:
+        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+    },
+
+    Base: {
+      url: `https://1rpc.io/base`,
+      chainId: 8453,
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
@@ -60,30 +85,13 @@ const config: HardhatUserConfig = {
       chainId: 728126428,
       accounts: process.env.TRON_PRIVATE_KEY !== undefined ? [process.env.TRON_PRIVATE_KEY] : [],
     },
-
-    tron_test: {
-      url: `https://nile.trongrid.io/jsonrpc`,
-      chainId: 3448148188,
-      accounts: process.env.TESTNET_PRIVATE_KEY !== undefined ? [process.env.TESTNET_PRIVATE_KEY] : [],
-    },
-
-    eth_test: {
-      url: `https://eth-sepolia.api.onfinality.io/public`,
-      chainId: 11155111,
-      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
-    },
-
-    bsc_test: {
-      url: `https://api.zan.top/bsc-testnet`,
-      chainId: 97,
-      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
-    },
   },
   etherscan: {
     apiKey: {
       Mapo: " ",
-      Eth: " ",
-      Bsc: " "
+      Eth: process.env.ETHERSCAN_API_KEY || "",
+      Bsc: process.env.ETHERSCAN_API_KEY || "",
+      Base: process.env.ETHERSCAN_API_KEY || ""
     },
     customChains: [
       {
@@ -98,7 +106,7 @@ const config: HardhatUserConfig = {
         network: "Eth",
         chainId: 1,
         urls: {
-          apiURL: "https://api.etherscan.io/api",
+          apiURL: "https://api.etherscan.io/v2/api?chainid=1",
           browserURL: "https://etherscan.com/",
         },
       },
@@ -106,8 +114,17 @@ const config: HardhatUserConfig = {
         network: "Bsc",
         chainId: 56,
         urls: {
-          apiURL: "https://api.bscscan.com/api",
+          apiURL: "https://api.etherscan.io/v2/api?chainid=56",
           browserURL: "https://bscscan.com/",
+        },
+      },
+
+      {
+        network: "Base",
+        chainId: 8453,
+        urls: {
+          apiURL: "https://api.etherscan.io/v2/api?chainid=8453",
+          browserURL: "https://basescan.com/",
         },
       },
     ]
