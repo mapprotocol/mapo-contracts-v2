@@ -320,6 +320,15 @@ contract Relay is BaseGateway, IRelay {
         if (bridgeItem.txType == TxType.DEPOSIT) {
             address to = Utils.fromBytes(bridgeItem.to);
             _depositIn(txItem, bridgeItem.from, to);
+            emit BridgeCompleted(
+                txItem.orderId,
+                bridgeItem.chainAndGasLimit,
+                bridgeItem.txType,
+                bridgeItem.vault,
+                bridgeItem.sequence,
+                msg.sender,
+                bytes("")
+            );
         } else if (bridgeItem.txType == TxType.TRANSFER) {
 
             // collect affiliate and bridge fee
@@ -567,7 +576,6 @@ contract Relay is BaseGateway, IRelay {
 
     function _depositIn(TxItem memory txItem, bytes memory from, address to) internal {
         vaultManager.deposit(txItem, to);
-
         emit Deposit(txItem.orderId, txItem.chain, txItem.token, txItem.amount, to, from);
     }
 

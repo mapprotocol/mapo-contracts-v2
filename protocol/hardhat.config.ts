@@ -80,6 +80,13 @@ const config: HardhatUserConfig = {
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
 
+    Arb: {
+      url: `https://arb-one.api.pocket.network`,
+      chainId: 42161,
+      accounts:
+        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+    },
+
     Tron: {
       url: `https://api.trongrid.io/jsonrpc`,
       chainId: 728126428,
@@ -91,7 +98,8 @@ const config: HardhatUserConfig = {
       Mapo: " ",
       Eth: process.env.ETHERSCAN_API_KEY || "",
       Bsc: process.env.ETHERSCAN_API_KEY || "",
-      Base: process.env.ETHERSCAN_API_KEY || ""
+      Base: process.env.ETHERSCAN_API_KEY || "",
+      Arb: process.env.ETHERSCAN_API_KEY || ""
     },
     customChains: [
       {
@@ -125,6 +133,15 @@ const config: HardhatUserConfig = {
         urls: {
           apiURL: "https://api.etherscan.io/v2/api?chainid=8453",
           browserURL: "https://basescan.com/",
+        },
+      },
+
+      {
+        network: "Arb",
+        chainId: 42161,
+        urls: {
+          apiURL: "https://api.etherscan.io/v2/api?chainid=42161",
+          browserURL: "https://arbiscan.io/",
         },
       },
     ]

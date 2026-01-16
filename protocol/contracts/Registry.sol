@@ -330,7 +330,12 @@ contract Registry is BaseImplementation, IRegistry {
     }
 
     function getTokenDecimals(uint256 chain, bytes calldata token) external view override returns (uint256) {
-        address relayToken = tokenMappingList[chain][token];
+        address relayToken;
+        if(chain == selfChainId) {
+            relayToken = Utils.fromBytes(token);
+        } else {
+            relayToken = tokenMappingList[chain][token];
+        }
         Token storage t = tokenList[relayToken];
         return t.decimals[chain];
     }

@@ -6,6 +6,8 @@ import "./subs/protocolFee";
 import "./subs/gasService";
 import "./subs/relay";
 import "./subs/swapManager";
+import "./subs/fusionQuoter";
+import "./subs/fusionReceiver";
 
 
 import { task } from "hardhat/config";
@@ -37,6 +39,7 @@ task("upgrade", "upgrade contract")
       await verify(hre, await impl.getAddress(), [], code);
   })
 
+// all before deploy vaultToken and Authority and SwapManager config in deploy.json
 // steps  first Configuration protocol/configs file
 // 1. deploy contract (a.deploy maintainer contract b.deploy protocol contract)  forge script
 // 2. set up contract (a.set maintainer contract b.set protocol contract) forge script
