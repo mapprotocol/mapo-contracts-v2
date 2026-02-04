@@ -79,7 +79,7 @@
         "bsc_test": {
             "chainId": 97, 
             "lastScanBlock": 73811503,
-            "updateGasFeeGap": 0,
+            "updateGasFeeGap": 5,
             "confirmCount": 6,
             "minGasCallOnReceive": 500000,
             "chainType": "contract",
@@ -117,7 +117,7 @@
         "btc_test": {
             "chainId": 1360095883558914, 
             "lastScanBlock": 279084,
-            "updateGasFeeGap": 3,
+            "updateGasFeeGap": 0,
             "confirmCount": 2,
             "minGasCallOnReceive": 500000,
             "chainType": "no-contract",
