@@ -97,6 +97,14 @@ type ChainToken = {
     }
 }
 
+export async function getConfigration(network:string) { 
+    let filePath = getFilePath(network);
+    let p = path.join(__dirname, filePath + "configration.json");
+    if(!fs.existsSync(p)) throw (`file ${p} not exist`);
+    let rawdata = fs.readFileSync(p, "utf-8");
+    return JSON.parse(rawdata)
+}
+
 export async function getAllChainTokens(network:string) {
    let filePath = getFilePath(network); 
    let p = path.join(__dirname, filePath + "chainTokens.json");

@@ -8,6 +8,7 @@ import "./subs/relay";
 import "./subs/swapManager";
 import "./subs/fusionQuoter";
 import "./subs/fusionReceiver";
+import "./subs/configuration";
 
 
 import { task } from "hardhat/config";
@@ -31,7 +32,13 @@ task("upgrade", "upgrade contract")
       await(await c.upgradeToAndCall(await impl.getAddress(), "0x")).wait();
       console.log(`after impl `, await c.getImplementation());
       let code;
-      if(taskArgs.contract === 'FlashSwapManager' || taskArgs.contract === 'ViewController') {
+      if(
+         taskArgs.contract === 'FlashSwapManager' || 
+         taskArgs.contract === 'ViewController' || 
+         taskArgs.contract === 'FusionQuoter' ||
+         taskArgs.contract === 'FusionReceiver' ||
+         taskArgs.contract === 'Configuration'
+      ){
          code = `contracts/len/${taskArgs.contract}.sol:${taskArgs.contract}`
       } else {
          code = `contracts/${taskArgs.contract}.sol:${taskArgs.contract}` 
@@ -57,3 +64,7 @@ task("upgrade", "upgrade contract")
 // 14. protocolFee ->  protocolFee:updateProtocolFee
 // 15  vaultManager -> vaultManager:setAllMinAmount
 // 16  gateway -> gateway:updateMinGasCallOnReceive
+// 17  configuration -> configuration:configuration:deploy
+// 18  configuration -> configuration:updateGasFeeGapFromConfig
+// 19  configuration -> configuration:confirmCountFromConfig
+// 20  configuration -> configuration:updateConfigrationFromConfig

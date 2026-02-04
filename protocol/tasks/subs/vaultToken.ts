@@ -27,7 +27,7 @@ task("vaultToken:deploy", "deploy vault token")
         await (await v.setVaultManager(vaultManager)).wait()
         console.log("after vaultManager address is: ", await v.vaultManager());
     //    await verify(hre, await c.getAddress(), [await impl.getAddress(), init_data], "contracts/ERC1967Proxy.sol:ERC1967Proxy");
-        await verify(hre, await impl.getAddress(), [], "/contracts/VaultToken.sol:VaultToken");
+        await verify(hre, await impl.getAddress(), [], "contracts/VaultToken.sol:VaultToken");
     });
 
 

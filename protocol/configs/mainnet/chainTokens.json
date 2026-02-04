@@ -23,7 +23,7 @@
                     "name": "ETH",
                     "addr": "0x05ab928d446d8ce6761e368c8e7be03c3168a9ec",
                     "decimals": 18,
-                    "bridgeAble": false,
+                    "bridgeAble": true,
                     "mintAble": false,
                     "burnFrom": false
                 },
@@ -42,6 +42,30 @@
                     "bridgeAble": true,
                     "mintAble": false,
                     "burnFrom": false
+                },
+                {
+                    "name": "USDC",
+                    "addr": "0x9f722b2cb30093f766221fd0d37964949ed66918",
+                    "decimals": 18,
+                    "bridgeAble": true,
+                    "mintAble": false,
+                    "burnFrom": false
+                },
+                {
+                    "name": "SOL",
+                    "addr": "0x5de6606ae1250c64560a603B40078DE268240fdd",
+                    "decimals": 18,
+                    "bridgeAble": true,
+                    "mintAble": false,
+                    "burnFrom": false
+                },
+                {
+                    "name": "TRX",
+                    "addr": "0x593a37fe0F6DFd0b6c5A051e9a44aA0F6922A1a2",
+                    "decimals": 18,
+                    "bridgeAble": true,
+                    "mintAble": false,
+                    "burnFrom": false
                 }
             ]
         },
@@ -49,7 +73,7 @@
         "Eth": {
             "chainId": 1, 
             "lastScanBlock": 0,
-            "updateGasFeeGap": 3,
+            "updateGasFeeGap": 0,
             "confirmCount": 6,
             "minGasCallOnReceive": 500000,
             "chainType": "contract",
@@ -87,7 +111,7 @@
         "Bsc": {
             "chainId": 56, 
             "lastScanBlock": 70547507,
-            "updateGasFeeGap": 3,
+            "updateGasFeeGap": 5,
             "confirmCount": 6,
             "minGasCallOnReceive": 500000,
             "chainType": "contract",
@@ -133,7 +157,7 @@
         "Pol": {
             "chainId": 137, 
             "lastScanBlock": 753302000,
-            "updateGasFeeGap": 3,
+            "updateGasFeeGap": 5,
             "confirmCount": 6,
             "minGasCallOnReceive": 500000,
             "chainType": "contract",
@@ -164,7 +188,7 @@
         "Base": {
             "chainId": 8453, 
             "lastScanBlock": 39885832,
-            "updateGasFeeGap": 3,
+            "updateGasFeeGap": 5,
             "confirmCount": 6,
             "minGasCallOnReceive": 500000,
             "chainType": "contract",
@@ -194,7 +218,7 @@
         "Arb": {
             "chainId": 42161, 
             "lastScanBlock": 418464438,
-            "updateGasFeeGap": 3,
+            "updateGasFeeGap": 5,
             "confirmCount": 6,
             "minGasCallOnReceive": 500000,
             "chainType": "contract",
@@ -224,7 +248,7 @@
        "Xlayer": {
             "chainId": 196, 
             "lastScanBlock": 0,
-            "updateGasFeeGap": 3,
+            "updateGasFeeGap": 5,
             "confirmCount": 6,
             "minGasCallOnReceive": 500000,
             "chainType": "contract",
@@ -246,7 +270,7 @@
         "Uni": {
             "chainId": 130, 
             "lastScanBlock": 0,
-            "updateGasFeeGap": 3,
+            "updateGasFeeGap": 5,
             "confirmCount": 6,
             "minGasCallOnReceive": 500000,
             "chainType": "contract",
@@ -276,7 +300,7 @@
         "Op": {
             "chainId": 10, 
             "lastScanBlock": 0,
-            "updateGasFeeGap": 3,
+            "updateGasFeeGap": 5,
             "confirmCount": 6,
             "minGasCallOnReceive": 500000,
             "chainType": "contract",
@@ -307,7 +331,7 @@
        "Kaia": {
             "chainId": 10, 
             "lastScanBlock": 0,
-            "updateGasFeeGap": 3,
+            "updateGasFeeGap": 5,
             "confirmCount": 6,
             "minGasCallOnReceive": 500000,
             "chainType": "contract",
@@ -329,7 +353,7 @@
         "Avax": {
             "chainId": 43114, 
             "lastScanBlock": 0,
-            "updateGasFeeGap": 3,
+            "updateGasFeeGap": 0,
             "confirmCount": 6,
             "minGasCallOnReceive": 500000,
             "chainType": "contract",
@@ -351,7 +375,7 @@
         "Tron": {
             "chainId": 728126428, 
             "lastScanBlock": 0,
-            "updateGasFeeGap": 3,
+            "updateGasFeeGap": 0,
             "confirmCount": 6,
             "minGasCallOnReceive": 500000,
             "chainType": "contract",
@@ -394,6 +418,36 @@
                     "addr": "0x425443",
                     "decimals": 8,
                     "bridgeAble": true,
+                    "mintAble": false,
+                    "burnFrom": false
+                }
+            ]
+        },
+
+        "Sol": {
+            "chainId": 1360108768460801, 
+            "lastScanBlock": 926495,
+            "updateGasFeeGap": 0,
+            "confirmCount": 2,
+            "minGasCallOnReceive": 0,
+            "chainType": "contract",
+            "gasToken": "0x5de6606ae1250c64560a603B40078DE268240fdd", 
+            "baseFeeToken": "0x33daba9618a75a7aff103e53afe530fbacf4a3dd",
+            "transferFailedReceiver": "",
+            "tokens": [
+                {
+                    "name": "SOL",
+                    "addr": "0x069b8857feab8184fb687f634618c035dac439dc1aeb3b5598a0f00000000000",
+                    "decimals": 9,
+                    "bridgeAble": false,
+                    "mintAble": false,
+                    "burnFrom": false
+                },
+                {
+                    "name": "USDC",
+                    "addr": "0xc6fa7af3bedbad3a3d65f36aabc97431b1bbe4c2d2f6e0e47ca60203452f5d61",
+                    "decimals": 6,
+                    "bridgeAble": false,
                     "mintAble": false,
                     "burnFrom": false
                 }
