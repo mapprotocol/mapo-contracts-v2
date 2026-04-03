@@ -29,14 +29,17 @@ export async function getTronDeployer(hex:boolean, network:string) {
 
 
 export async function tronFromHex(hex:string, network:string) {
+  if (hex.startsWith('T') && hex.length === 34) return hex;
   let tronWeb = await getTronWeb(network);
   return tronWeb.address.fromHex(hex);
 }
 
 export async function tronToHex(addr:string, network:string) {
+  if(addr.startsWith("0x") && addr.length === 42) return addr;
   let tronWeb = await getTronWeb(network);
   return tronWeb.address.toHex(addr).replace(/^(41)/, "0x");
 }
+
 
 export async function getTronContract(contractName:string, artifacts:any, network:string, addr:string) {
   let tronWeb = await getTronWeb(network);

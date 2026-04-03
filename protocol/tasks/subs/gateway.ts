@@ -1,5 +1,5 @@
 import { task } from "hardhat/config";
-import { Gateway } from "../../typechain-types/contracts"
+import { Gateway, VaultManager } from "../../typechain-types/contracts"
 import { getDeploymentByKey, getChainTokenByNetwork, getAllChainTokens, saveDeployment} from "../utils/utils"
 import { tronDeploy, tronFromHex, tronToHex, getTronContract } from "../utils/tronUtil"
 import { addressToHex } from "../utils/addressUtil"
@@ -44,7 +44,7 @@ task("gateway:setWtoken", "set wtoken address")
             addr = await getDeploymentByKey(network.name, "Gateway");
         }
         if(isTronNetwork(network.name)) {
-            let c = await getTronContract("Gateway", hre.artifacts, network.name, addr);
+            let c = await getTronContract("Gateway", hre.artifacts, network.name, await tronFromHex(addr, network.name));
             let currentWtoken = await tronFromHex(await c.wToken().call(), network.name);
             if (currentWtoken.toLowerCase() === wtoken.toLowerCase()) {
                 console.log(`wtoken already set to ${currentWtoken}, skipping`);
@@ -70,33 +70,39 @@ task("gateway:setWtoken", "set wtoken address")
 });
 
 task("gateway:setTssAddress", "set tss pubkey")
-    .addParam("pubkey", "tss pubkey")
     .setAction(async (taskArgs, hre) => {
         const { network, ethers } = hre;
         const [deployer] = await ethers.getSigners();
 
         let addr = await getDeploymentByKey(network.name, "Gateway");
+
+        let tssPubkey = await getPubkey(network.name, ethers);
+        
+        if(!tssPubkey) throw("tss not active yet, cannot get pubkey");
+        if(tssPubkey.length !== 130) throw("invalid pubkey length");
+        console.log(`current active tss pubkey is ${tssPubkey}`);
+
         if(isTronNetwork(network.name)) {
-            let c = await getTronContract("Gateway", hre.artifacts, network.name, addr);
+            let c = await getTronContract("Gateway", hre.artifacts, network.name, await tronFromHex(addr, network.name));
             let currentPubkey = await c.activeTss().call();
-            if (currentPubkey.toLowerCase() === taskArgs.pubkey.toLowerCase()) {
+            if (currentPubkey.toLowerCase() === tssPubkey.toLowerCase()) {
                 console.log(`pubkey already set to ${currentPubkey}, skipping`);
                 return;
             }
-            console.log(`on-chain pubkey: ${currentPubkey}, config pubkey: ${taskArgs.pubkey}, updating...`);
-            await c.setTssAddress(taskArgs.pubkey).send();
+            console.log(`on-chain pubkey: ${currentPubkey}, config pubkey: ${tssPubkey}, updating...`);
+            await c.setTssAddress(tssPubkey).send();
             console.log(`after pubkey is: `, await c.activeTss().call())
         } else {
             console.log("deployer address:", await deployer.getAddress())
             const GatewayFactory = await ethers.getContractFactory("Gateway");
             const gateway = GatewayFactory.attach(addr) as Gateway;
             let currentPubkey = await gateway.activeTss();
-            if (currentPubkey.toLowerCase() === taskArgs.pubkey.toLowerCase()) {
+            if (currentPubkey.toLowerCase() === tssPubkey.toLowerCase()) {
                 console.log(`pubkey already set to ${currentPubkey}, skipping`);
                 return;
             }
-            console.log(`on-chain pubkey: ${currentPubkey}, config pubkey: ${taskArgs.pubkey}, updating...`);
-            await(await gateway.setTssAddress(taskArgs.pubkey)).wait();
+            console.log(`on-chain pubkey: ${currentPubkey}, config pubkey: ${tssPubkey}, updating...`);
+            await(await gateway.setTssAddress(tssPubkey)).wait();
             console.log(`after pubkey is: `, await gateway.activeTss())
         }
 
@@ -116,7 +122,7 @@ task("gateway:setTransferFailedReceiver", "set Transfer Failed Receiver")
         if(!transferFailedReceiver || transferFailedReceiver.length == 0) return;
 
         if(isTronNetwork(network.name)) {
-            let c = await getTronContract("Gateway", hre.artifacts, network.name, addr);
+            let c = await getTronContract("Gateway", hre.artifacts, network.name, await tronFromHex(addr, network.name));
             let currentReceiver = await tronFromHex(await c.transferFailedReceiver().call(), network.name);
             if (currentReceiver.toLowerCase() === transferFailedReceiver.toLowerCase()) {
                 console.log(`transferFailedReceiver already set to ${currentReceiver}, skipping`);
@@ -156,7 +162,7 @@ task("gateway:updateMinGasCallOnReceive", "update MinGas CallOnReceive")
         if(!minGasCallOnReceive || minGasCallOnReceive === 0) return;
 
         if(isTronNetwork(network.name)) {
-            let c = await getTronContract("Gateway", hre.artifacts, network.name, addr);
+            let c = await getTronContract("Gateway", hre.artifacts, network.name, await tronFromHex(addr, network.name));
             let currentMinGas = await c.minGasCallOnReceive().call();
             if (currentMinGas === BigInt(minGasCallOnReceive)) {
                 console.log(`minGasCallOnReceive already set to ${currentMinGas}, skipping`);
@@ -198,7 +204,7 @@ task("gateway:updateTokens", "update Tokens")
 
 
         if(isTronNetwork(network.name)) {
-            let c = await getTronContract("Gateway", hre.artifacts, network.name, addr);
+            let c = await getTronContract("Gateway", hre.artifacts, network.name, await tronFromHex(addr, network.name));
            for (let index = 0; index < tokens.length; index++) {
                 const element = tokens[index];
                 let feature = 0;
@@ -277,16 +283,16 @@ task("gateway:bridgeOut", "bridge out tokens to another chain")
         console.log(`Receiver: ${toAddress}, bytes: ${to}`);
 
         const refundAddr = taskArgs.refund || senderAddress;
-        const payload = taskArgs.payload || "0x";
+        let payload = taskArgs.payload || "0x";
         const deadline = taskArgs.deadline || Math.floor(Date.now() / 1000) + 3600;
 
         const isNativeToken = token === "0x0000000000000000000000000000000000000000";
 
         if (isTronNetwork(network.name)) {
-            let c = await getTronContract("Gateway", hre.artifacts, network.name, addr);
+            let c = await getTronContract("Gateway", hre.artifacts, network.name, await tronFromHex(addr, network.name));
 
             if (!isNativeToken) {
-                const tokenContract = await getTronContract("IERC20", hre.artifacts, network.name, token);
+                const tokenContract = await getTronContract("IERC20", hre.artifacts, network.name, await tronFromHex(token, network.name));
                 console.log("Approving token...");
                 await tokenContract.approve(await tronToHex(addr, network.name), amount).send();
             }
@@ -314,6 +320,9 @@ task("gateway:bridgeOut", "bridge out tokens to another chain")
             }
 
             console.log(`Bridging out ${taskArgs.amount} ${tokenInfo.name} to ${taskArgs.tochain}...`);
+            if(payload === "0x" && network.name.indexOf("Mapo") !== -1) { 
+                payload = ethers.AbiCoder.defaultAbiCoder().encode(["bytes", "bytes", "bytes"], ["0x", "0x", "0x"]);
+            }
             const tx = await gateway.bridgeOut(
                 token,
                 amount,
@@ -379,10 +388,10 @@ task("gateway:deposit", "deposit tokens to vault")
         const isNativeToken = token === "0x0000000000000000000000000000000000000000";
 
         if (isTronNetwork(network.name)) {
-            let c = await getTronContract("Gateway", hre.artifacts, network.name, addr);
+            let c = await getTronContract("Gateway", hre.artifacts, network.name, await tronFromHex(addr, network.name));
 
             if (!isNativeToken) {
-                const tokenContract = await getTronContract("IERC20", hre.artifacts, network.name, token);
+                const tokenContract = await getTronContract("IERC20", hre.artifacts, network.name, await tronFromHex(token, network.name));
                 console.log("Approving token...");
                 await tokenContract.approve(await tronToHex(addr, network.name), amount).send();
             }
@@ -483,3 +492,18 @@ async function getChainInfoByName(currentNetwork: string, chainName: string) {
 
     throw new Error(`Chain ${chainName} not found in config`);
 }
+
+async function getPubkey(chainName: string , ethers: any) {
+    const VaultManagerFactory = await ethers.getContractFactory("VaultManager");
+    if(chainName.indexOf("test") > 0) {
+        let addr = await getDeploymentByKey("Mapo_test", "VaultManager");
+        let provider = new ethers.JsonRpcProvider("https://testnet-rpc.maplabs.io");
+        const v = VaultManagerFactory.attach(addr) as VaultManager;
+        return v.connect(provider).getActiveVault();
+    } else {
+        let addr = await getDeploymentByKey("Mapo", "VaultManager");
+        let provider = new ethers.JsonRpcProvider("https://rpc.maplabs.io");
+        const v = VaultManagerFactory.attach(addr) as VaultManager;
+        return v.connect(provider).getActiveVault();
+    }
+}       
