@@ -76,7 +76,8 @@ export async function evmDeployByFactory(
     if (code === "0x") throw new Error("factory not deployed on this chain");
 
     const saltHash = ethers.keccak256(ethers.toUtf8Bytes(salt));
-    const predicted = await factory.getAddress(saltHash);
+    // Use getFunction: ethers v6 Contract has a built-in getAddress() that shadows the ABI method
+    const predicted = await factory.getFunction("getAddress")(saltHash);
 
     const existingCode = await ethers.provider.getCode(predicted);
     if (existingCode !== "0x") {
@@ -108,7 +109,8 @@ export async function evmDeployByFactory(
 export async function evmGetFactoryAddress(ethers: any, salt: string): Promise<string> {
     const factory = new ethers.Contract(EVM_FACTORY, EVM_FACTORY_ABI, await ethers.provider);
     const saltHash = ethers.keccak256(ethers.toUtf8Bytes(salt));
-    return factory.getAddress(saltHash);
+    // Use getFunction: ethers v6 Contract has a built-in getAddress() that shadows the ABI method
+    return factory.getFunction("getAddress")(saltHash);
 }
 
 // ============================================================
