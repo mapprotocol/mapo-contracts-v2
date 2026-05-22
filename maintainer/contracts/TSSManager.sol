@@ -504,7 +504,7 @@ contract TSSManager is BaseImplementation, ITSSManager {
 
     function _getTxInItemHash(TxInItem calldata txInItem) internal pure returns (bytes32) {
 
-        bytes32 en = keccak256(abi.encodePacked(
+        bytes32 en = keccak256(abi.encode(
                 txInItem.bridgeItem.chainAndGasLimit,
                 txInItem.bridgeItem.vault,
                 txInItem.bridgeItem.txType,
@@ -512,14 +512,14 @@ contract TSSManager is BaseImplementation, ITSSManager {
                 txInItem.bridgeItem.amount,
                 txInItem.bridgeItem.from,
                 txInItem.bridgeItem.to,
-                txInItem.bridgeItem.payload
+                keccak256(txInItem.bridgeItem.payload)
             ));
-        return keccak256(abi.encodePacked(en, txInItem.orderId, txInItem.height, txInItem.refundAddr));
+        return keccak256(abi.encode(en, txInItem.orderId, txInItem.height, txInItem.refundAddr));
     }
 
     function _getTxOutItemHash(TxOutItem calldata txOutItem) internal pure returns (bytes32) {
 
-        bytes32 en = keccak256(abi.encodePacked(
+        bytes32 en = keccak256(abi.encode(
                 txOutItem.bridgeItem.chainAndGasLimit,
                 txOutItem.bridgeItem.vault,
                 txOutItem.bridgeItem.txType,
@@ -528,9 +528,9 @@ contract TSSManager is BaseImplementation, ITSSManager {
                 txOutItem.bridgeItem.amount,
                 txOutItem.bridgeItem.from,
                 txOutItem.bridgeItem.to,
-                txOutItem.bridgeItem.payload
+                keccak256(txOutItem.bridgeItem.payload)
             ));
-        return keccak256(abi.encodePacked(en, txOutItem.orderId, txOutItem.height, txOutItem.gasUsed, txOutItem.sender));
+        return keccak256(abi.encode(en, txOutItem.orderId, txOutItem.height, txOutItem.gasUsed, txOutItem.sender));
     }
 
     function _batchAddToJail(address[] memory ms) internal {

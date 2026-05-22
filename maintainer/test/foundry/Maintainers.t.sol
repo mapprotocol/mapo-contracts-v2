@@ -270,7 +270,7 @@ contract MaintainersTest is BaseTest {
     /// @dev distributeReward is only callable via vm (msg.sender == address(0)).
     ///      Reward requires epoch status == MIGRATED, so this tests the basic guard.
     function test_distributeReward_callableFromVm() public {
-        // distributeReward() checks status == MIGRATED for rewardEpoch+1
+        // distributeReward() returns early until the epoch is completed
         // Since no epochs are migrated yet, it should return early without reverting
         vm.prank(address(0));
         vm.deal(address(maintainers), 1 ether);
