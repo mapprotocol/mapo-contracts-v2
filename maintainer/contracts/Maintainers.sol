@@ -146,6 +146,7 @@ contract Maintainers is BaseImplementation, IMaintainers {
 
     function update(address maintainerAddr, bytes calldata secp256Pubkey, bytes calldata ed25519PubKey, string calldata p2pAddress) external {
         require(maintainerAddr != address(0));
+        require(maintainerToValidator[maintainerAddr] == address(0));
         address validator = msg.sender;
         MaintainerInfo storage info = maintainerInfos[validator];
         require(info.status == MaintainerStatus.REGISTERED);

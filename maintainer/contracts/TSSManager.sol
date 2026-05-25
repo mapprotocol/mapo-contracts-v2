@@ -527,10 +527,9 @@ contract TSSManager is BaseImplementation, ITSSManager {
                 txOutItem.bridgeItem.token,
                 txOutItem.bridgeItem.amount,
                 txOutItem.bridgeItem.from,
-                txOutItem.bridgeItem.to,
-                keccak256(txOutItem.bridgeItem.payload)
+                txOutItem.bridgeItem.to
             ));
-        return keccak256(abi.encode(en, txOutItem.orderId, txOutItem.height, txOutItem.gasUsed, txOutItem.sender));
+        return keccak256(abi.encode(en, keccak256(txOutItem.bridgeItem.payload), txOutItem.orderId, txOutItem.height, txOutItem.gasUsed, txOutItem.sender));
     }
 
     function _batchAddToJail(address[] memory ms) internal {
