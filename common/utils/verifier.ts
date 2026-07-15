@@ -29,6 +29,13 @@ export interface VerifyOptions {
     compiler?: string;           // override solc version (auto-read from build-info if omitted)
     optimizer?: boolean;         // override optimizer enabled (auto-read from build-info if omitted)
     optimizerRuns?: number;      // override optimizer runs (auto-read from build-info if omitted)
+    /**
+     * Reuse an existing verify-output/<contract>_flatten.sol instead of regenerating it.
+     * Off by default: the flatten is always regenerated from current source, because a
+     * cached file keyed only on the contract name silently verifies STALE source after
+     * the contract changes. Only enable this when you intentionally hand-edited the flatten.
+     */
+    reuseFlatten?: boolean;
 }
 
 /**
@@ -108,8 +115,8 @@ async function verifyTron(hre: any, opts: VerifyOptions): Promise<void> {
     const outputDir = path.join(process.cwd(), "verify-output");
     const flattenPath = path.join(outputDir, `${opts.contractName}_flatten.sol`);
 
-    if (fs.existsSync(flattenPath)) {
-        console.log(`using existing flatten: ${flattenPath}`);
+    if (opts.reuseFlatten && fs.existsSync(flattenPath)) {
+        console.log(`reusing existing flatten: ${flattenPath}`);
     } else {
         console.log(`generating flatten for ${opts.contractName}...`);
         let sourcePath = "";
