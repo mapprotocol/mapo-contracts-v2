@@ -107,6 +107,10 @@ contract Gateway is BaseGateway {
     }
 
     function _updateTSS(bytes32 orderId, uint256 sequence, bytes memory newVault) internal {
+        if (sequence <= retireSequence) revert invalid_vault();
+        if (newVault.length == 0) revert invalid_vault();
+        if (keccak256(newVault) == keccak256(activeTss)) revert invalid_vault();
+        
         retireTss = activeTss;
         retireTssAddress = activeTssAddress;
         activeTss = newVault;

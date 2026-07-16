@@ -146,6 +146,7 @@ contract Maintainers is BaseImplementation, IMaintainers {
 
     function update(address maintainerAddr, bytes calldata secp256Pubkey, bytes calldata ed25519PubKey, string calldata p2pAddress) external {
         require(maintainerAddr != address(0));
+        require(maintainerToValidator[maintainerAddr] == address(0));
         address validator = msg.sender;
         MaintainerInfo storage info = maintainerInfos[validator];
         require(info.status == MaintainerStatus.REGISTERED);
@@ -316,9 +317,10 @@ contract Maintainers is BaseImplementation, IMaintainers {
      */
     function distributeReward() external payable override onlyVm {
         uint256 _rewardEpoch = rewardEpoch + 1;
-        ITSSManager.TSSStatus status = tssManager.getTSSStatus(_rewardEpoch);
-        if (status == ITSSManager.TSSStatus.MIGRATED) {
-            EpochInfo storage e = epochInfos[_rewardEpoch];
+        EpochInfo storage e = epochInfos[_rewardEpoch];
+        // Use local epoch bookkeeping instead of TSS status so rewards remain claimable
+        // when the same maintainer set is re-elected and no RETIRED transition is emitted.
+        if (e.migratedBlock > 0 && _rewardEpoch < currentEpoch) {
             uint256 totalReward = (e.endBlock - e.startBlock) * _getParameter(REWARD_PER_BLOCK);
             uint256[] memory points = tssManager.batchGetSlashPoint(_rewardEpoch, e.maintainers);
             uint256 arm = _getParameter(ADDITIONAL_REWARD_MAX_SLASH_POINT);

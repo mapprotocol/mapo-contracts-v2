@@ -328,10 +328,10 @@ abstract contract BaseGateway is IGateway, BaseImplementation, ReentrancyGuardUp
     returns (bytes32)
     {
         // payload length might be long
-        // use payload hash to optimize the encodePacked gas
+        // use payload hash to optimize the encode gas
         bytes32 payloadHash = keccak256(bridgeItem.payload);
         bytes32 hash = keccak256(
-            abi.encodePacked(
+            abi.encode(
                 orderId,
                 bridgeItem.chainAndGasLimit,
                 bridgeItem.txType,
