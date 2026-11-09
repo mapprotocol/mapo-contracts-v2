@@ -586,8 +586,14 @@ contract VaultManager is BaseImplementation, IVaultManager {
     }
 
     function redeem(address _vaultToken, uint256 _share, address _owner, address _receiver) external override onlyRelay  returns (address, uint256)  {
+        require(_share > 0);
+        if(_receiver == address(0)) revert Errs.zero_address();
+
         IVaultToken vaultToken = IVaultToken(_vaultToken);
         address redeemToken = vaultToken.asset();
+        // check vault token: the registered vault token of the asset must be the given one
+        (bool exist, address registeredVaultToken) = tokenList.tryGet(redeemToken);
+        if (!exist || registeredVaultToken != _vaultToken) revert Errs.invalid_vault_token();
         uint256 redeemAmount = vaultToken.redeem(_share, _receiver, _owner);
 
         uint256 outAmount = _collectFee(bytes32(0x00), selfChainId, selfChainId, redeemToken, redeemAmount, true, false);
