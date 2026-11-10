@@ -163,6 +163,37 @@ contract MaintainersTest is BaseTest {
         assertEq(uint256(infos[0].status), uint256(IMaintainers.MaintainerStatus.STANDBY));
     }
 
+    /// @dev Validator keeps its maintainer key and only changes p2p address.
+    function test_update_sameMaintainer_newP2p() public {
+        vm.prank(validator1);
+        maintainers.register(maintainer1, secp256Pubkey1, ed25519Pubkey1, P2P_ADDR);
+
+        string memory newP2p = "/ip4/10.0.0.2/tcp/9000";
+        vm.prank(validator1);
+        maintainers.update(maintainer1, secp256Pubkey1, ed25519Pubkey1, newP2p);
+
+        assertEq(maintainers.maintainerToValidator(maintainer1), validator1);
+        IMaintainers.MaintainerInfo[] memory infos = _getMaintainerInfos(maintainer1);
+        assertEq(infos[0].p2pAddress, newP2p);
+        assertEq(uint256(infos[0].status), uint256(IMaintainers.MaintainerStatus.STANDBY));
+    }
+
+    /// @dev A validator cannot take over a maintainer address bound to another validator.
+    function test_revert_update_takeOtherValidatorsMaintainer() public {
+        vm.prank(validator1);
+        maintainers.register(maintainer1, secp256Pubkey1, ed25519Pubkey1, P2P_ADDR);
+        vm.prank(validator2);
+        maintainers.register(maintainer2, secp256Pubkey2, ed25519Pubkey2, P2P_ADDR);
+
+        vm.prank(validator2);
+        vm.expectRevert();
+        maintainers.update(maintainer1, secp256Pubkey1, ed25519Pubkey1, P2P_ADDR);
+
+        // Binding unchanged
+        assertEq(maintainers.maintainerToValidator(maintainer1), validator1);
+        assertEq(maintainers.maintainerToValidator(maintainer2), validator2);
+    }
+
     // -------------------------------------------------------------------------
     // Heartbeat tests
     // -------------------------------------------------------------------------

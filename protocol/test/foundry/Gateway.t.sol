@@ -536,6 +536,40 @@ contract GatewayTest is BaseTest {
         assertEq(gatewayHarness.activeTssAddress(), _pubkeyToAddress(newVault), "activeTssAddress wrong");
     }
 
+    function _migrateParams(uint256 sequence, bytes memory newVault) internal view returns (bytes memory) {
+        BridgeItem memory item = _makeBridgeItem(0, TxType.MIGRATE);
+        item.sequence = sequence;
+        item.payload = newVault;
+        return abi.encode(item);
+    }
+
+    // Params are built first so vm.expectRevert applies to bridgeIn, not to the view calls
+    function _migrate(bytes32 orderId, uint256 sequence, bytes memory newVault, bool expectRevert) internal {
+        bytes memory params = _migrateParams(sequence, newVault);
+        vm.prank(admin);
+        if (expectRevert) vm.expectRevert(Gateway.invalid_vault.selector);
+        gatewayHarness.bridgeIn(admin, orderId, params, bytes("dummy"));
+    }
+
+    // A migration with sequence <= retireSequence (replayed/out-of-order) is rejected
+    function test_revert_rotateGateway_staleSequence() public {
+        _migrate(keccak256("rot_1"), 5, _makeVaultBytes("tss_a"), false);
+        assertEq(gatewayHarness.retireSequence(), 5);
+
+        _migrate(keccak256("rot_2"), 5, _makeVaultBytes("tss_b"), true);
+        // Order is not consumed, so it can be resubmitted with a valid sequence
+        assertFalse(gatewayHarness.isOrderExecuted(keccak256("rot_2"), true));
+    }
+
+    function test_revert_rotateGateway_emptyVault() public {
+        _migrate(keccak256("rot_empty"), 1, bytes(""), true);
+    }
+
+    function test_revert_rotateGateway_sameVault() public {
+        bytes memory current = gatewayHarness.activeTss();
+        _migrate(keccak256("rot_same"), 1, current, true);
+    }
+
     // =========================================================================
     // Order tracking tests
     // =========================================================================
