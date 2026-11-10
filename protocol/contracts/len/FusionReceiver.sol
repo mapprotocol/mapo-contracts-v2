@@ -107,9 +107,15 @@ contract FusionReceiver is BaseImplementation, IReceiver {
         bytes calldata _from,
         bytes calldata _payload
     ) external {
+        // Authenticate the caller before anything is stored, otherwise anyone could
+        // plant a fake failed record via the low-gas branch and get it retried.
+        if (msg.sender != address(mos) && msg.sender != address(gateway)) revert only_mos_or_gateway();
         ReceivedStruct memory rs = _assignment(_orderId, _token, _amount, _fromChain, _from, _payload);
         rs.receiveType = (msg.sender == address(mos)) ? ReceiveType.BUTTER : ReceiveType.TSS;
-        if(gasleft() < MINGASFORSTORE) {
+        // When paused (or short of gas), only record; never forward funds.
+        // Reverting is not an option: callers wrap onReceived in try/catch after the
+        // tokens were already transferred, so a revert would lose the record.
+        if (paused() || gasleft() < MINGASFORSTORE) {
             _store(rs);
             return;
         }
@@ -126,8 +132,6 @@ contract FusionReceiver is BaseImplementation, IReceiver {
             } catch  {
                 _store(rs);
             }
-        } else {
-            revert only_mos_or_gateway();
         }
     }
 
@@ -139,9 +143,9 @@ contract FusionReceiver is BaseImplementation, IReceiver {
         uint256 _fromChain,
         bytes calldata _from,
         bytes calldata _payload
-    ) external restricted {
+    ) external restricted whenNotPaused {
         ReceivedStruct memory rs = _assignment(_orderId, _token, _amount, _fromChain, _from, _payload);
-        bytes32 hash = _getReceiveHash(_receiveType, rs.orderId, rs.token, rs.amount, rs.fromChain, rs.from);
+        bytes32 hash = _getReceiveHash(_receiveType, rs.orderId, rs.token, rs.amount, rs.fromChain, rs.from, rs.payload);
         if (!stored[hash]) revert transaction_not_exist();
         stored[hash] = false;
         if (_receiveType == ReceiveType.TSS) {
@@ -178,7 +182,7 @@ contract FusionReceiver is BaseImplementation, IReceiver {
 
 
     function _store(ReceivedStruct memory rs) internal {
-        bytes32 hash = _getReceiveHash(rs.receiveType, rs.orderId, rs.token, rs.amount, rs.fromChain, rs.from);
+        bytes32 hash = _getReceiveHash(rs.receiveType, rs.orderId, rs.token, rs.amount, rs.fromChain, rs.from, rs.payload);
         stored[hash] = true;
         emit FailedStore(rs.receiveType, rs.orderId, rs.token, rs.amount, rs.fromChain, rs.from, rs.payload);
     }
@@ -189,9 +193,11 @@ contract FusionReceiver is BaseImplementation, IReceiver {
         address _token,
         uint256 _amount,
         uint256 _fromChain,
-        bytes memory _from
+        bytes memory _from,
+        bytes memory _payload
     ) internal pure returns(bytes32 hash) {
-        hash = keccak256(abi.encodePacked(_receiveType, _orderId, _token, _amount, _fromChain, _from));
+        // payload (destination + chain) is bound into the hash so retry cannot redirect funds
+        hash = keccak256(abi.encode(_receiveType, _orderId, _token, _amount, _fromChain, _from, _payload));
     }
 
 

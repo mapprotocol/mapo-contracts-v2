@@ -3,6 +3,7 @@ pragma solidity 0.8.25;
 
 import {ISwap} from "../interfaces/swap/ISwap.sol";
 import {IFlashSwap} from "../interfaces/swap/IFlashSwap.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {BaseImplementation} from "@mapprotocol/common-contracts/contracts/base/BaseImplementation.sol";
 
 
@@ -12,6 +13,7 @@ contract FlashSwapManager is ISwap, BaseImplementation {
 
     error approve_token_failed();
     error transfer_in_failed();
+    error insufficient_output();
 
     event SetFlashSwap(address _flashSwap);
     event Swap(address from, address tokenIn, uint256 amountIn, address tokenOut, uint256 amountOut, address to);
@@ -34,7 +36,11 @@ contract FlashSwapManager is ISwap, BaseImplementation {
         address to = address(this);
         _transferFromToken(from, tokenIn, amountIn, to);
         _approveToken(tokenIn, amountIn, address(flashSwap));
-        amountOut = flashSwap.swap(tokenIn, tokenOut, amountIn, amountOutMin, to);
+        // Measure what actually arrived instead of trusting the swap return value
+        uint256 balanceBefore = IERC20(tokenOut).balanceOf(to);
+        flashSwap.swap(tokenIn, tokenOut, amountIn, amountOutMin, to);
+        amountOut = IERC20(tokenOut).balanceOf(to) - balanceBefore;
+        if (amountOut < amountOutMin) revert insufficient_output();
         _approveToken(tokenOut, amountOut, from);
         emit Swap(from, tokenIn, amountIn, tokenOut, amountOut, to);
     }

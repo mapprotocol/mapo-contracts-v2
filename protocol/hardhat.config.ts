@@ -77,7 +77,7 @@ const config: HardhatUserConfig = {
     },
     Arb: {
       chainId: 42161,
-      url: "https://arb-one.api.pocket.network",
+      url: "https://arb1.arbitrum.io/rpc",
       accounts: PRIVATE_KEY,
     },
     Op: {
@@ -92,7 +92,7 @@ const config: HardhatUserConfig = {
     },
     Pol: {
       chainId: 137,
-      url: "https://polygon.rpc.subquery.network/public",
+      url: "https://polygon.drpc.org",
       accounts: PRIVATE_KEY,
     },
     Xlayer: {

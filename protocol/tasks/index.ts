@@ -10,6 +10,7 @@ import "./subs/fusionQuoter";
 import "./subs/fusionReceiver";
 import "./subs/configuration";
 import "./subs/setup";
+import "./subs/pause";
 
 
 import { task, types } from "hardhat/config";

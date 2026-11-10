@@ -24,6 +24,7 @@ pragma solidity 0.8.25;
 // ============================================================
 
 import {BaseTest} from "./BaseTest.sol";
+import {PausableUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
 import {VaultToken} from "../../contracts/VaultToken.sol";
 import {ERC1967Proxy} from "../../contracts/ERC1967Proxy.sol";
 import {TxType, TxInItem, TxOutItem, BridgeItem, TxItem, ChainType} from "../../contracts/libs/Types.sol";
@@ -406,6 +407,23 @@ contract RelayTest is BaseTest {
         relay.redeem(address(vaultToken), 100e18, user1);
     }
 
+    // Attacker-deployed vault that self-reports a real asset and an arbitrary redeem amount
+    function test_revert_redeem_fakeVaultToken() public {
+        // Fund relay via a legit deposit so there is something to steal
+        vm.prank(user1);
+        relay.deposit(address(testToken), 1000e18, user1, user1, block.timestamp + 1 hours);
+        uint256 relayBalance = testToken.balanceOf(address(relay));
+        assertGt(relayBalance, 0);
+
+        FakeVaultToken fake = new FakeVaultToken(address(testToken), relayBalance);
+
+        vm.prank(user2);
+        vm.expectRevert(Errs.invalid_vault_token.selector);
+        relay.redeem(address(fake), 1, user2);
+
+        assertEq(testToken.balanceOf(address(relay)), relayBalance, "relay balance must be untouched");
+    }
+
     // -----------------------------------------------------------------------
     // executeTxIn tests (TSS_MANAGER gated)
     // -----------------------------------------------------------------------
@@ -421,6 +439,27 @@ contract RelayTest is BaseTest {
         vm.prank(user1);
         vm.expectRevert(Errs.no_access.selector);
         relay.executeTxIn(txInItem);
+    }
+
+    // Paused relay must not pay out, and the order stays executable after unpause
+    function test_revert_executeTxIn_paused_thenRetryAfterUnpause() public {
+        bytes32 orderId = bytes32(uint256(300));
+        TxInItem memory txInItem = _makeTxInDeposit(orderId, ETH_CHAIN_ID, SELF_CHAIN_ID, 100e18);
+
+        vm.prank(admin);
+        relay.trigger();
+
+        vm.prank(mockTssManager);
+        vm.expectRevert(PausableUpgradeable.EnforcedPause.selector);
+        relay.executeTxIn(txInItem);
+        assertFalse(relay.isOrderExecuted(orderId, true), "order must not be marked executed");
+
+        vm.prank(admin);
+        relay.trigger();
+
+        vm.prank(mockTssManager);
+        relay.executeTxIn(txInItem);
+        assertTrue(relay.isOrderExecuted(orderId, true));
     }
 
     function test_revert_executeTxIn_orderAlreadyExecuted() public {
@@ -1205,5 +1244,20 @@ contract RelayTest is BaseTest {
         }
 
         assertTrue(relay.isOrderExecuted(orderId, false), "out order should be marked executed after BridgeCompleted");
+    }
+}
+
+/// @dev Malicious vault token: claims a registered asset and returns any amount from redeem()
+contract FakeVaultToken {
+    address public immutable asset;
+    uint256 public immutable payout;
+
+    constructor(address _asset, uint256 _payout) {
+        asset = _asset;
+        payout = _payout;
+    }
+
+    function redeem(uint256, address, address) external view returns (uint256) {
+        return payout;
     }
 }

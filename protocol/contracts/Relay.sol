@@ -284,7 +284,9 @@ contract Relay is BaseGateway, IRelay {
     }
 
     // swap: affiliate data | relay data | target data
-    function executeTxIn(TxInItem calldata txInItem) external override {
+    // Paused => no inbound payout even if TSS is compromised; reverts before
+    // orderExecuted is written, so TSS can resubmit the order after unpause.
+    function executeTxIn(TxInItem calldata txInItem) external override whenNotPaused {
         _checkAccess(ContractType.TSS_MANAGER);
 
         if (orderExecuted[txInItem.orderId] != ORDER_NOT_EXIST) revert Errs.order_executed();
