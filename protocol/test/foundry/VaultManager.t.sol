@@ -535,6 +535,46 @@ contract VaultManagerTest is BaseTest {
         vaultManager.redeem(address(vaultToken), 1e18, user1, user1);
     }
 
+    function test_revert_redeem_zeroShare() public {
+        vm.prank(address(relay));
+        vm.expectRevert();
+        vaultManager.redeem(address(vaultToken), 0, user1, user2);
+    }
+
+    function test_revert_redeem_zeroReceiver() public {
+        vm.prank(address(relay));
+        vm.expectRevert(Errs.zero_address.selector);
+        vaultManager.redeem(address(vaultToken), 1e18, user1, address(0));
+    }
+
+    // asset() of the vault token is not a registered token
+    function test_revert_redeem_unregisteredAsset() public {
+        VaultToken other = VaultToken(
+            _deployProxy(
+                address(new VaultToken()),
+                abi.encodeCall(VaultToken.initialize, (address(authority), address(testToken6), "Other", "OTH"))
+            )
+        );
+
+        vm.prank(address(relay));
+        vm.expectRevert(Errs.invalid_vault_token.selector);
+        vaultManager.redeem(address(other), 1e18, user1, user2);
+    }
+
+    // asset() is registered, but the given vault token is not the registered one
+    function test_revert_redeem_vaultTokenMismatch() public {
+        VaultToken fake = VaultToken(
+            _deployProxy(
+                address(new VaultToken()),
+                abi.encodeCall(VaultToken.initialize, (address(authority), address(testToken), "Fake", "FAKE"))
+            )
+        );
+
+        vm.prank(address(relay));
+        vm.expectRevert(Errs.invalid_vault_token.selector);
+        vaultManager.redeem(address(fake), 1e18, user1, user2);
+    }
+
     // -----------------------------------------------------------------------
     // Helper: add BSC chain to registry and VaultManager
     // -----------------------------------------------------------------------
